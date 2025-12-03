@@ -94,7 +94,7 @@ fi
 
 # Step 9: Crea systemd service
 echo "🔧 Creazione systemd service..."
-cat > /etc/systemd/system/${SERVICE_NAME} <<EOFSERVICE
+cat > /etc/systemd/system/${SERVICE_NAME} <<'EOFSERVICE'
 [Unit]
 Description=ldc-100-boot
 # Se non connessa rete vedo schermata nera dopo slash 2 perchè rc-local attende - per ora così
