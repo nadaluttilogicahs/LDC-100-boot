@@ -1,0 +1,13 @@
+# LDC-100 Boot Utility - Python Dependencies
+
+# Progress bar for file operations
+tqdm>=4.65.0
+
+# Keyboard input handling
+keyboard>=0.13.5
+
+# Note: psutil is commented in the code but keeping it here in case needed
+# psutil>=5.9.0
+
+# LDC Common Library
+git+https://github.com/nadaluttilogicahs/ldc-common.git
