@@ -84,7 +84,7 @@ info_path_usb = None
 def doBackup ():
 
     # get id of moistline
-    res1 = _sqlite.select_task_by_field(work_dir / PATHS.db_set, 'sensInLine_sets_plant', 'idCtrl', 'value')
+    res1 = _sqlite.select_task_by_field(PATHS.db_set, 'sensInLine_sets_plant', 'idCtrl', 'value')
     idMoistline = res1[0]
     idMoistline = idMoistline['value']
 
@@ -99,7 +99,7 @@ def doBackup ():
     if not os.path.exists(PATHS.DB_BACKUP_D):
         os.makedirs(PATHS.DB_BACKUP_D)
     # Eventualmente con funzioni  - High-level file operations (come fatto per funzione copySrcToDst)
-    cmd = f'sudo cp {work_dir / PATHS.db_set} {PATHS.DB_BACKUP_D / fileBackup}'
+    cmd = f'sudo cp {PATHS.db_set} {PATHS.DB_BACKUP_D / fileBackup}'
     os.system(cmd)
 
     print(fileBackup, "file is a new backup")
@@ -364,7 +364,6 @@ def copySrcToDst (sourFold, destFold, syncDb=False):
                     os.remove(dst_file)
                 # shutil.copy(src_file, dst_dir)
                 shutil.copy(src_file, dst_file)
-                time.sleep(0.05)
                 
                 # # !! privacy: non visualizzo percorso !!
                 # # print(f"📂 Copied: {src_file} -> {dst_file}")   
@@ -581,13 +580,13 @@ def killProcess ():
     time.sleep(1)
     print("--------------------------------------------------------------------------------------------------------------------------------")
     print(" Vacuum database...") # to merge temperary database (ex. -wall, -shm)
-    _sqlite.update_task_by_query(work_dir / PATHS.db_set, "VACUUM")
+    _sqlite.update_task_by_query(PATHS.db_set, "VACUUM")
     print(f"- Vacuum {PATHS.db_set}")
-    _sqlite.update_task_by_query(work_dir / PATHS.db_rtd, "VACUUM")
+    _sqlite.update_task_by_query(PATHS.db_rtd, "VACUUM")
     print(f"- Vacuum {PATHS.db_rtd}")
-    _sqlite.update_task_by_query(work_dir / PATHS.db_lan, "VACUUM")
+    _sqlite.update_task_by_query(PATHS.db_lan, "VACUUM")
     print(f"- Vacuum {PATHS.db_lan}")
-    _sqlite.update_task_by_query(work_dir / PATHS.DB_PRG_D, "VACUUM")
+    _sqlite.update_task_by_query(PATHS.DB_PRG_D, "VACUUM")
     print(f"- Vacuum {PATHS.DB_PRG_D}")
     time.sleep(1)
         
@@ -768,9 +767,9 @@ if __name__ == '__main__':
         time.sleep(1)
 
         # scrivi versione applicazione così feedback per gui
-        _sqlite.update_task_by_field(work_dir / PATHS.db_set, 'system_status', 'upgSwVer', 'value', SW_VERSION)
+        _sqlite.update_task_by_field(PATHS.db_set, 'system_status', 'upgSwVer', 'value', SW_VERSION)
         # !! per sicurezza resetto aggiornamento
-        _sqlite.update_task_by_field(work_dir / PATHS.db_set, 'system_ctrl', 'guiUpdtCtrl', 'value', UCC_IDLE)
+        _sqlite.update_task_by_field(PATHS.db_set, 'system_ctrl', 'guiUpdtCtrl', 'value', UCC_IDLE)
         
         time.sleep(1)
 
@@ -785,10 +784,10 @@ if __name__ == '__main__':
             # verifica se sono nella schermata update (così limito lettura su db)
             
             # # 20241016: non più utilizzato updtEnb ma screen/screenPc
-            # #res1 = _sqlite.select_task_by_field(work_dir / PATHS.db_set, 'system_status', 'updtEnb', 'value')
+            # #res1 = _sqlite.select_task_by_field(PATHS.db_set, 'system_status', 'updtEnb', 'value')
             # #res = res1[0]
             
-            # res1 = _sqlite.select_task_by_query(work_dir / PATHS.db_set, "SELECT value FROM gui_status WHERE ID IN ('screen', 'screenPc') ORDER BY ID")
+            # res1 = _sqlite.select_task_by_query(PATHS.db_set, "SELECT value FROM gui_status WHERE ID IN ('screen', 'screenPc') ORDER BY ID")
             # screen = res1[0]
             # screen = screen['value']
             # screenPc = res1[1]
@@ -803,42 +802,42 @@ if __name__ == '__main__':
                 res = isUpgrade()
                 if res == 1:
                     print("- Found upgrade ---------------------------------------------------------------------------------")
-                    res1 = _sqlite.select_task_by_field(work_dir / PATHS.db_set, 'system_status', 'guiUpdtSts', 'value')
+                    res1 = _sqlite.select_task_by_field(PATHS.db_set, 'system_status', 'guiUpdtSts', 'value')
                     res = res1[0]
                     if res['value'] != USV_UPG_AVAILABLE:
-                        _sqlite.update_task_by_field(work_dir / PATHS.db_set, 'system_status', 'guiUpdtSts', 'value', USV_UPG_AVAILABLE)
+                        _sqlite.update_task_by_field(PATHS.db_set, 'system_status', 'guiUpdtSts', 'value', USV_UPG_AVAILABLE)
 
 
-                    res1 = _sqlite.select_task_by_field(work_dir / PATHS.db_set, 'system_ctrl', 'guiUpdtCtrl', 'value')
+                    res1 = _sqlite.select_task_by_field(PATHS.db_set, 'system_ctrl', 'guiUpdtCtrl', 'value')
                     res = res1[0]
                     if res['value'] == UCC_START_UPGRADE:
 
                         # reset
-                        _sqlite.update_task_by_field(work_dir / PATHS.db_set, 'system_status', 'guiUpdtSts', 'value', USV_IDLE)
-                        _sqlite.update_task_by_field(work_dir / PATHS.db_set, 'system_ctrl', 'guiUpdtCtrl', 'value', UCC_IDLE)
+                        _sqlite.update_task_by_field(PATHS.db_set, 'system_status', 'guiUpdtSts', 'value', USV_IDLE)
+                        _sqlite.update_task_by_field(PATHS.db_set, 'system_ctrl', 'guiUpdtCtrl', 'value', UCC_IDLE)
 
                         # start update
                         update = True
                         break
                 elif res == 0:
                     print("Software version is already updated -------------------------------------------------------------")
-                    res1 = _sqlite.select_task_by_field(work_dir / PATHS.db_set, 'system_status', 'guiUpdtSts', 'value')
+                    res1 = _sqlite.select_task_by_field(PATHS.db_set, 'system_status', 'guiUpdtSts', 'value')
                     res = res1[0]
                     if res['value'] != USV_NO_NEW_VER:
-                        _sqlite.update_task_by_field(work_dir / PATHS.db_set, 'system_status', 'guiUpdtSts', 'value', USV_NO_NEW_VER)
+                        _sqlite.update_task_by_field(PATHS.db_set, 'system_status', 'guiUpdtSts', 'value', USV_NO_NEW_VER)
                 else:
                     print("Source directory not found")
-                    res1 = _sqlite.select_task_by_field(work_dir / PATHS.db_set, 'system_status', 'guiUpdtSts', 'value')
+                    res1 = _sqlite.select_task_by_field(PATHS.db_set, 'system_status', 'guiUpdtSts', 'value')
                     res = res1[0]
                     if res['value'] != USV_NO_JSON:
-                        _sqlite.update_task_by_field(work_dir / PATHS.db_set, 'system_status', 'guiUpdtSts', 'value', USV_NO_JSON)
+                        _sqlite.update_task_by_field(PATHS.db_set, 'system_status', 'guiUpdtSts', 'value', USV_NO_JSON)
 
             elif screen == 'backup_Screen' or screenPc == 'backup_Screen':
-                res1 = _sqlite.select_task_by_field(work_dir / PATHS.db_set, 'system_ctrl', 'usrCmdBoot', 'value')
+                res1 = _sqlite.select_task_by_field(PATHS.db_set, 'system_ctrl', 'usrCmdBoot', 'value')
                 usrCmd = res1[0]
                 usrCmd = usrCmd['value']
                 if usrCmd == UCBOOT_DO_BACKUP:
-                    _sqlite.update_task_by_field(work_dir / PATHS.db_set, 'system_ctrl', 'usrCmdBoot', 'value', UCBOOT_RESET)
+                    _sqlite.update_task_by_field(PATHS.db_set, 'system_ctrl', 'usrCmdBoot', 'value', UCBOOT_RESET)
                     backup = True
                     break
 
