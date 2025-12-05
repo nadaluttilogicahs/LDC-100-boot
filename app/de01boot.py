@@ -2,6 +2,18 @@
 import subprocess
 import sys
 import os
+import sqlite3
+import json
+import time
+import fnmatch
+import shutil
+import keyboard
+import zipfile
+import glob
+from pathlib import Path
+from datetime import datetime
+from tqdm import tqdm  # Assicurati di aver installato tqdm (pip install tqdm)
+import syncdb
 
 # import _sqlite
 # import _def
@@ -12,18 +24,6 @@ from ldc_common._paths import PATHS
 from ldc_common import _sqlite
 
 #import psutil
-import json
-import time
-import fnmatch
-import shutil
-import keyboard
-import sys
-import zipfile
-import glob
-from pathlib import Path
-from datetime import datetime
-from tqdm import tqdm  # Assicurati di aver installato tqdm (pip install tqdm)
-import syncdb
 
 ##############################################################
 # Attivare ambiente virtuale (se usato)
@@ -99,8 +99,8 @@ def doBackup ():
     if not os.path.exists(PATHS.DB_BACKUP_D):
         os.makedirs(PATHS.DB_BACKUP_D)
     # Eventualmente con funzioni  - High-level file operations (come fatto per funzione copySrcToDst)
-    cmd = f'sudo cp {PATHS.db_set} {PATHS.DB_BACKUP_D / fileBackup}'
-    os.system(cmd)
+    # Uso subprocess invece di os.system per evitare command injection
+    subprocess.run(['sudo', 'cp', str(PATHS.db_set), str(PATHS.DB_BACKUP_D / fileBackup)], check=True)
 
     print(fileBackup, "file is a new backup")
 
@@ -139,7 +139,8 @@ def find_json_into_zip(path):
         info_json_found = False
 
         # !! SOLO PER DEBUG: /opt/... dovrebbe essere root oppure system user !!
-        os.system(f'sudo chown -R {user}:{user} {zip_path}')
+        # Uso subprocess invece di os.system per evitare command injection
+        subprocess.run(['sudo', 'chown', '-R', f'{user}:{user}', str(zip_path)], check=False)
 
         try:
             with zipfile.ZipFile(zip_path, 'r') as z:
@@ -161,7 +162,8 @@ def find_json_into_zip(path):
         except Exception as e:
             print(f"❌ Unexpected error with {zip_path}: {e}")
 
-        return None
+    # Return None solo se nessun file ZIP valido è stato trovato (fuori dal loop!)
+    return None
 
 
 # =============================================================================================================================
@@ -339,9 +341,8 @@ def copySrcToDst (sourFold, destFold, syncDb=False):
             for file_ in files:
                 src_file = os.path.join(src_dir, file_)
                 dst_file = os.path.join(dst_dir, file_)
-                
+
                 # !! EVENTUALMENTE UTILIZZARE FUNZIONI UTILITY _sqlite.py MA VERIFICARE SE VIENE CHIUSO DB CON with
-                import sqlite3
                 if syncDb:
                     # global dbSyncConfigs
                     # If file_ matches a DB in JSON config, perform sync
@@ -567,7 +568,8 @@ def killProcess ():
     global procNameDict
     # for x in procNameList:
     for x in procNameDict:
-        os.system('sudo killall ' + x)
+        # Uso subprocess invece di os.system per evitare command injection
+        subprocess.run(['sudo', 'killall', x], check=False)
 
     os.system('cls||clear')
     print("================================================================================================================================")
@@ -709,10 +711,12 @@ def isAllProcessStop ():
     # for proc in procNameList:
     for proc in procNameDict:
         try:
-            if isProcessRunning(proc, False) == True: 
+            if isProcessRunning(proc, False) == True:
                 ret = False
         except:
             print("Error")
+
+    return ret
 
 
 #=============================================================================================================================
@@ -755,8 +759,9 @@ if __name__ == '__main__':
             raise KeyboardInterrupt
 
         # refresh privilegi/permessi
-        os.system(f'sudo chown -R {user}:{user} {work_dir}')
-        os.system(f'sudo chmod -R +rwx {work_dir}')
+        # Uso subprocess invece di os.system per evitare command injection
+        subprocess.run(['sudo', 'chown', '-R', f'{user}:{user}', str(work_dir)], check=False)
+        subprocess.run(['sudo', 'chmod', '-R', '+rwx', str(work_dir)], check=False)
         # try:
         #     subprocess.run(['sudo', 'chown', '-R', 'lg58:lg58', f'{work_dir}'], check=True)
         #     subprocess.run(['sudo', 'chmod', '-R', 'rwx', f'{work_dir}'], check=True)
@@ -869,8 +874,9 @@ if __name__ == '__main__':
             print("================================================================================================================================")
             print(" UPGRADE DONE")
             # refresh privilegi/permessi (perchè se scaricati da aws s3 non viene settata la flag exe)
-            os.system(f'sudo chown -R {user}:{user} {work_dir}')
-            os.system(f'sudo chmod -R +rwx {work_dir}')
+            # Uso subprocess invece di os.system per evitare command injection
+            subprocess.run(['sudo', 'chown', '-R', f'{user}:{user}', str(work_dir)], check=False)
+            subprocess.run(['sudo', 'chmod', '-R', '+rwx', str(work_dir)], check=False)
             time.sleep(2)
             print("================================================================================================================================")
             print(" REBOOT SYSTEM")
