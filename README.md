@@ -116,6 +116,11 @@ sudo systemctl disable ldc-100-boot
 
 # Riabilita avvio automatico
 sudo systemctl enable ldc-100-boot
+
+# Rimuovi vecchio servizio
+sudo systemctl stop ldc-100-boot
+sudo systemctl disable ldc-100-boot
+sudo rm /etc/systemd/system/ldc-100-boot.service
 ```
 
 ## Funzionalità Principali

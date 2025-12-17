@@ -18,7 +18,7 @@ LDC_BASE_DIR="/home/lg58/LDC-100"
 APP_DIR="${LDC_BASE_DIR}/${APP_NAME}"
 SERVICE_USER="lg58"
 SERVICE_NAME="ldc-100-boot.service"
-DATA_DIR="${LDC_BASE_DIR}/data
+DATA_DIR="${LDC_BASE_DIR}/data"
 
 echo "🚀 Installazione ${APP_NAME}..."
 
@@ -67,19 +67,19 @@ chmod -R 750 ${APP_DIR}
 
 # Step 7: Crea boot.sh launcher script
 echo "🔧 Creazione boot launcher script..."
-cat > ${LDC_BASE_DIR}/boot.sh << 'EOFBOOTSH'
+cat > ${LDC_BASE_DIR}/boot.sh << EOFBOOTSH
 #!/bin/bash
 # LDC-100 Boot Launcher Script
 # Activates virtual environment and launches boot utility
 
-BOOT_DIR="/home/lg58/LDC-100/boot/app"
-VENV_DIR="$BOOT_DIR/venv"
+BOOT_DIR="${LDC_BASE_DIR}/boot/app"
+VENV_DIR="${LDC_BASE_DIR}/boot/venv"
 
 # Activate virtual environment
-source "$VENV_DIR/bin/activate"
+source "\$VENV_DIR/bin/activate"
 
 # Launch boot utility
-cd "$BOOT_DIR"
+cd "\$BOOT_DIR"
 python3 de01boot.py
 EOFBOOTSH
 
@@ -94,7 +94,7 @@ fi
 
 # Step 9: Crea systemd service
 echo "🔧 Creazione systemd service..."
-cat > /etc/systemd/system/${SERVICE_NAME} <<'EOFSERVICE'
+cat > /etc/systemd/system/${SERVICE_NAME} <<EOFSERVICE
 [Unit]
 Description=ldc-100-boot
 # Se non connessa rete vedo schermata nera dopo slash 2 perchè rc-local attende - per ora così
@@ -114,7 +114,6 @@ Group=root
 WorkingDirectory=${LDC_BASE_DIR}
 
 # Attendi davvero che tty1 e ALSA esistano (evita race all'avvio)
-ExecStartPre=/usr/bin/chmod +x ${APP_DIR}/boot.sh
 ExecStartPre=/bin/sh -c 'until [ -e /dev/tty1 ]; do sleep 0.2; done'
 ExecStartPre=/bin/sh -c 'until ls /dev/snd/* >/dev/null 2>&1; do sleep 0.2; done'
 # Pulisci lo schermo e mostra l'IP (attende max 10s)

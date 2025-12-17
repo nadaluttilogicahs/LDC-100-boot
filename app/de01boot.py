@@ -14,6 +14,18 @@ from pathlib import Path
 from datetime import datetime
 from tqdm import tqdm  # Assicurati di aver installato tqdm (pip install tqdm)
 import syncdb
+from __version__ import __version__
+import argparse
+
+# import _sqlite
+# import _def
+
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# from ldc_common import _sqlite, _def
+from ldc_common._paths import PATHS
+from ldc_common import _sqlite
+
+#import psutil
 
 # import _sqlite
 # import _def
@@ -739,7 +751,11 @@ def keyPressed (init):
 #=============================================================================================================================
 #=============================================================================================================================
 if __name__ == '__main__': 
-
+    parser = argparse.ArgumentParser(description='LDC-100 Boot Software by LOGICA H&S Srl')
+    parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
+    
+    args, unknown = parser.parse_known_args()  # ignora argomenti sconosciuti
+    
     update = False
     backup = False
 
@@ -747,7 +763,7 @@ if __name__ == '__main__':
 
     print("")
     print("================================================================================================================================")
-    print("LDC-100 BOOT SOFTWARE by LOGICA H&S Srl. Version: ", SW_VERSION)
+    print(f"LDC-100 BOOT SOFTWARE by LOGICA H&S Srl. Version: {__version__}")
     print("================================================================================================================================")
     # !! Meglio mantenere riservata questa informazione !!
     #print('Press ESC key to stop all applications')
